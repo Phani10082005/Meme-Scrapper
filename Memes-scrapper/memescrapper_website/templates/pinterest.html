@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinterest Search - Meme Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Pinterest specific styles */
+        .pinterest-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(230, 0, 35, 0.4);
+        }
+
+        .pin-text {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: #ccc;
+        }
+
+        .results-grid {
+            /* Basic grid - for true Pinterest masonry, more JS/CSS is needed, but grid works for simple cards */
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="/" class="logo">MemeScraper</a>
+        <nav>
+            <a href="/" style="color: white; text-decoration: none;">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1 style="color: var(--pinterest-color, #E60023); margin-bottom: 2rem;"><i class="fab fa-pinterest"></i>
+            Pinterest Search
+        </h1>
+
+        <!-- Search Section -->
+        <div id="search-section" class="search-container-wrapper"
+            style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <div class="search-container">
+                <input type="text" id="keyword" placeholder="Enter keyword (e.g., programming humor)...">
+                <button onclick="searchPinterest()" style="background-color: #E60023;">Search</button>
+            </div>
+
+            <div id="loading" class="spinner hidden"></div>
+            <div id="results" class="results-grid"></div>
+        </div>
+    </main>
+
+    <script>
+        async function searchPinterest() {
+            const keyword = document.getElementById('keyword').value;
+            const resultsDiv = document.getElementById('results');
+            const loading = document.getElementById('loading');
+
+            if (!keyword) return;
+
+            resultsDiv.innerHTML = '';
+            loading.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`/api/search/pinterest?keyword=${encodeURIComponent(keyword)}&limit=20`);
+                const data = await response.json();
+
+                loading.classList.add('hidden');
+
+                if (data.error) {
+                    resultsDiv.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+                    return;
+                }
+
+                data.forEach(pin => {
+                    const card = document.createElement('div');
+                    card.className = 'meme-card pinterest-card';
+                    card.innerHTML = `
+                        <a href="${pin.image_url}" target="_blank">
+                            <div style="height: 300px; background: #333; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                <img src="${pin.image_url}" alt="Pin Image" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        </a>
+                        <div class="content">
+                            <p class="pin-text">${pin.text ? pin.text : 'No caption'}</p>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(card);
+                });
+
+                if (data.length === 0) {
+                    resultsDiv.innerHTML = '<p>No results found.</p>';
+                }
+
+            } catch (error) {
+                loading.classList.add('hidden');
+                resultsDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+
+        // Allow Enter key to trigger search
+        document.getElementById('keyword').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                searchPinterest();
+            }
+        });
+    </script>
+</body>
+
+</html>

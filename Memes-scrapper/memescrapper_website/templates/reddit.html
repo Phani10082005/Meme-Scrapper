@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Search - Meme Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <a href="/" class="logo">MemeScraper</a>
+        <nav>
+            <a href="/" style="color: white; text-decoration: none;">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1 style="color: var(--reddit-color); margin-bottom: 2rem;"><i class="fab fa-reddit"></i> Reddit Search</h1>
+
+        <div class="search-container">
+            <input type="text" id="keyword" placeholder="Enter keyword (e.g., cricket)...">
+            <button onclick="searchReddit()">Search</button>
+        </div>
+
+        <div id="loading" class="spinner hidden"></div>
+        <div id="results" class="results-grid"></div>
+    </main>
+
+    <script>
+        async function searchReddit() {
+            const keyword = document.getElementById('keyword').value;
+            const resultsDiv = document.getElementById('results');
+            const loading = document.getElementById('loading');
+
+            if (!keyword) return;
+
+            resultsDiv.innerHTML = '';
+            loading.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`/api/search/reddit?keyword=${encodeURIComponent(keyword)}&limit=50`);
+                const data = await response.json();
+
+                loading.classList.add('hidden');
+
+                if (data.error) {
+                    resultsDiv.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+                    return;
+                }
+
+                data.forEach(meme => {
+                    const card = document.createElement('div');
+                    card.className = 'meme-card';
+                    card.innerHTML = `
+                        <a href="${meme.url}" target="_blank">
+                            <img src="${meme.url}" alt="${meme.title}" onerror="this.src='https://via.placeholder.com/300?text=Image+Load+Failed'">
+                        </a>
+                        <div class="content">
+                            <h3>${meme.title}</h3>
+                            <div class="meta">
+                                <span>r/${meme.subreddit}</span>
+                                <span><i class="fas fa-arrow-up"></i> ${meme.ups}</span>
+                            </div>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(card);
+                });
+
+                if (data.length === 0) {
+                    resultsDiv.innerHTML = '<p>No results found.</p>';
+                }
+
+            } catch (error) {
+                loading.classList.add('hidden');
+                resultsDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

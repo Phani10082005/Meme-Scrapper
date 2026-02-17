@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme Scraper Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <a href="/" class="logo">MemeScraper</a>
+    </header>
+
+    <main>
+        <h1>Select a Platform</h1>
+        <div class="platform-grid">
+            <a href="/reddit" class="platform-card reddit-card">
+                <i class="fab fa-reddit icon"></i>
+                <h2>Reddit</h2>
+                <p>Search unlimited memes from Reddit.</p>
+            </a>
+            <a href="/instagram" class="platform-card insta-card">
+                <i class="fab fa-instagram icon"></i>
+                <h2>Instagram</h2>
+                <p>Search hashtags on Instagram.</p>
+            </a>
+            <a href="/twitter" class="platform-card twitter-card" style="border-left: 5px solid #1DA1F2;">
+                <i class="fab fa-twitter icon" style="color: #1DA1F2;"></i>
+                <h2>Twitter</h2>
+                <p>Search memes on Twitter.</p>
+            </a>
+            <a href="/pinterest" class="platform-card pinterest-card" style="border-left: 5px solid #E60023;">
+                <i class="fab fa-pinterest icon" style="color: #E60023;"></i>
+                <h2>Pinterest</h2>
+                <p>Search memes on Pinterest.</p>
+            </a>
+
+        </div>
+    </main>
+</body>
+
+</html>
